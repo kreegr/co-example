@@ -7,49 +7,29 @@ let time = (()=>{
 
   return ()=>{
     let tt = process.hrtime(t);
-    return `${tt[0]}:${Math.floor(tt[1]/1000000)}`;
+    return `${tt[0]}.${Math.floor(tt[1]/1000000)}`;
   };
 })();
 
+let async = (label, timeToComplete, resolvesWith)=>{
+  return new Promise((r, x)=>{
+    setTimeout(()=>{
+      console.log('%s %s done', time(), label);
+      r(resolvesWith)
+    }, timeToComplete)
+  });
+}
+
 function*  test(){
   console.log('starting')
-  let a = new Promise((r, x)=>{
-    setTimeout(()=>{
-      console.log('%s a done', time());
-      r()
-    }, 1000);
-  });
-
-  let b = new Promise((r, x)=>{
-    setTimeout(()=>{
-      console.log('%s b done', time());
-      r()
-    }, 5000)
-  });
-
-  let c = new Promise((r, x)=> {
-    setTimeout(()=> {
-      console.log('%s c done', time());
-      r()
-    }, 1000);
-  });
-
-  let nestedD1 = new Promise((r, x)=>{
-    setTimeout(()=>{
-      console.log('%s d1 done', time());
-      r();
-    }, 7000);
-  });
-
-  let d = new Promise((r, x)=>{
-    setTimeout(()=>{
-      console.log('%s d done', time());
-      r(nestedD1);
-    }, 6000);
-  });
+  let a = async('a', 1000);
+  let b = async('b', 3000);
+  let c = async('c', 500);
+  let dd = async('dd', 7000);
+  let d = async('d', 6000, dd);
 
   yield [a,b];
-  console.log('%s yield a-b done', time());
+  console.log('%s yield a & b both done', time());
 
   yield b;
   console.log('%s yield b done', time());
